@@ -3,6 +3,10 @@ import requests
 import sys
 import difflib
 
+class unexpectedError(Exception):
+    def __init__(self, msg="There was an unexpected error."):
+        print msg
+
 class friend_finder(object):
 
     def __init__(self, n):
@@ -11,38 +15,16 @@ class friend_finder(object):
         self.lastname = n.split(" ")[-1]
         self.url = "http://locatefamily.com"
 
-    def findPages(self):
-        print "Please wait..."
-        pages = 1
-        first_character = self.lastname[0].upper()
-        shortcut = self.lastname[0:3].upper() if len(self.lastname) > 3 else self.lastname.upper()
-        while True:
-            prepared = "%s/%s/%s/%s-%d.html"%(self.url, first_character, shortcut, self.lastname.upper(), pages)
-            n = int(requests.get(prepared).status_code)
-            if n!=200:
-                break
-            else:
-                pages+=1
-        return pages
 
     def findPhoneNumber(self):
 
         first_character = self.lastname[0].upper()
         shortcut = self.lastname[0:3].upper() if len(self.lastname) > 3 else self.lastname.upper()
-        #number_of_pages = self.findPages()
         i = 1
         details = []
-        #while i<=number_of_pages:
-        #    prepared = "%s/%s/%s/%s-%d.html"%(self.url, first_character, shortcut, self.lastname.upper(), i)
-        #    r = requests.get(prepared)
-        #    parser = BeautifulSoup(r.text)
-        #    names = parser.findAll(itemprop="givenName") # continue from here!
-        #    names = [n.b.string.encode('ascii') for n in names]
-        #    i+=1
         filtered_ul_elements = []
         first_names = []
         phone_numbers = []
-        #print "Might take some time..."
         while True:
             j = 1
             prepared = "%s/%s/%s/%s-%d.html"%(self.url, first_character, shortcut, self.lastname.upper(), i)
@@ -88,7 +70,7 @@ class friend_finder(object):
     @staticmethod
     def toDict(a,b): # converts two arrays into dictionary {key: value}
         if len(a) != len(b):
-            print "There has been an unexpected error."
+            raise unexpectedError()
             sys.exit(0)
         i = 0
         dictionary = {}
@@ -107,10 +89,7 @@ class friend_finder(object):
             i += 1
         return dictionary
 
-    @staticmethod
-    def findConnections(n):
-        e = self.firstname # continue here2
-        #for e
+
 name = raw_input("Enter your friend's name in format \"firstname lastname\":\n>>>")
 f =  friend_finder(name)
 phone_numbers = f.findPhoneNumber()
@@ -118,13 +97,16 @@ if len(phone_numbers)>0:
     count = 0
     print "Found some close name matches: "
     for key,value in phone_numbers.items():
-        print "\t%s %s"%(key, f.lastname)
+        print "\tName:"
+        print "\t\t%s %s"%(key, f.lastname)
         if type([]) == type(value):
+            print "\tPhone numbers:"
             for i in value:
                 print "\t\t%s"%i
         elif value == None:
             count += 1
         else:
+            print "\tPhone number:"
             print "\t\t%s"%value
 
         if count  == len(phone_numbers):

@@ -32,10 +32,17 @@ class friend_finder(object):
             if int(r.status_code) == 404:
                 break
             parser = BeautifulSoup(r.text)
+
             all_ul_items = parser.findAll(itemtype="https://schema.org/Person")
             for element in  all_ul_items:
                 try:
                     a = element.find(itemprop="givenName").b
+                    try:
+                        fn = a.string.encode('ascii')
+                        if fn[0].upper() > self.firstname[0].upper():
+                            break
+                    except:
+                        continue
                     filtered_ul_elements.append(element)
                 except:
                     pass

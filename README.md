@@ -7,3 +7,4 @@ Tries to find people's phone number with their name.
 	<li>requests</li>
  </ul>
 
+# (req. python version 2)
